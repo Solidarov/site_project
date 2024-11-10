@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+<div class="container mx-auto my-8">
+    <h1 class="text-3xl font-bold mb-4">Your Cart</h1>
+    {% if products %}
+    <div class="flex flex-row justify-between gap-x-[50px]">
+        <div class="flex flex-col gap-4 w-[70%]">
+            {% for product in products %}
+            <div class="product-item flex justify-between items-center bg-gray-200 p-4 rounded">
+                <div>
+                    <h2 class="text-xl font-bold">{{ product.title }}</h2>
+                    <p>{{ product.quantity }} x ${{ "%.2f"|format(product.price) }}</p>
+                    <p>Total: ${{ "%.2f"|format(product.total) }}</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="w-[30%]">
+            <h2 class="text-2xl font-bold">Total Price: ${{ "%.2f"|format(total_price) }}</h2>
+            <form method="#" action="#" class="mt-4" id="checkout-form">
+                <input type="text" name="name" placeholder="Your Name" required minlength="2" maxlength="50"
+                       class="w-full p-2 border border-gray-300 rounded mb-2">
+                <input type="text" name="surname" placeholder="Your Surname" required minlength="2" maxlength="50"
+                       class="w-full p-2 border border-gray-300 rounded mb-2">
+                <input type="email" name="email" placeholder="Your Email" required
+                       class="w-full p-2 border border-gray-300 rounded mb-2">
+                <input type="tel" name="phone" placeholder="Your Phone Number" required pattern="\+?[0-9\s\-\(\)]{10,15}"
+                       title="Please enter a valid phone number"
+                       class="w-full p-2 border border-gray-300 rounded mb-2">
+                <input type="text" name="address" placeholder="Your Address" required minlength="5" maxlength="255"
+                       class="w-full p-2 border border-gray-300 rounded mb-2">
+                <button type="submit" class="bg-black text-white px-4 py-2 rounded">Buy and Pay</button>
+            </form>
+        </div>
+    </div>
+    {% else %}
+    <p>Your cart is empty!</p>
+    {% endif %}
+</div>
+{% endblock %}
