@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="user-container">
+    <h1>Feedback form</h1>
+    <form method="#" action="#" class="space-y-4">
+        <div>
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" placeholder="Please input your email" class="border p-2 w-full" required>
+        </div>
+        <div>
+            <label for="name">Name</label>
+            <input type="text" name="nane" id="name" placeholder="Please input your name" class="border p-2 w-full" required>
+        </div>
+        <div>
+            <label for="message">Message</label>
+            <textarea name="message" id="message" placeholder="Please input your message" class="border rounded p-2 w-full" required></textarea>
+        </div>
+        <button type="submit" class="bg-blue-500 text-white p-2 rounded">Send</button>
+    </form>
+</div>
+
+
+{% endblock %}
