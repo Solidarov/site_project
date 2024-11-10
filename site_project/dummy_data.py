@@ -1,23 +1,31 @@
 products = [
     {
-        "name": "Laptop",
-        "description":"blao bal blhagljd",
+        'id': 1,
+        "title": "Bottle",
+        "description":"IN NATURE WE TRUST",
+        'image': 'images/bottle.webp',
         "price": 124
     },
     {
-        "name": "Smartphone",
-        "description":"blao bal blhagljd",
+        'id': 2,
+        "title": "Candy box",
+        "description":"Exclusive gift box with 80 pcs. mix chocolate bites",
+        'image': 'images/box.webp',
         "price": 1546
     }
 ]
 
 cart_products = [
     {
-        "name": "Laptop",
-        "price": 124
+        "title": "Bottle",
+        "price": 124,
+        'total': 372,
+        'quantity': 3,
     },
     {
-        "name": "Smartphone",
-        "price": 1546
+        "title": "Candy box",
+        "price": 1546,
+        'total':1546,
+        'quantity': 1
     }
 ]

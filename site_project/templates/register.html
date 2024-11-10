@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Register{% endblock %}
+
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+{% endblock %}
+
+{% block content %}
+<div class="user-container">
+    <h1>Register</h1>
+    <form method="#" action="#">
+        <div>
+            <label for="username">Username</label>
+            <input type="text" name="username" id="username" placeholder="Please input your username" class="border p-2 w-full"required>
+        </div>
+        <div>
+            <label for="password">Password</label>
+            <input type="password" name="password" id="password" placeholder="Please input your password" class="border p-2 w-full"required>
+        </div>
+        <div>
+            <label for="password">Confirm password</label>
+            <input type="password" name="confirm_password" id="confirm_password" placeholder="Please input your password" class="border p-2 w-full" required>
+        </div>
+        <button type="submit">Register</button>
+    </form>
+</div>
+{% endblock %}

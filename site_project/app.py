@@ -9,30 +9,31 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 
 # INITIALISE
-app = Flask(__name__)
+app = Flask(__name__, static_folder='resources')
 app.config['SECRET_KEY'] = SECRET_KEY
 
 
 # ROUTING
 @app.route("/")
-def home_page():
+@app.route("/shop")
+def home():
     return render_template('home.html', products=dd.products)
 
 @app.route("/about")
-def about_page():
+def about():
     return render_template("about.html")
 
 @app.route("/cart")
-def cart_page():
-    return render_template("cart.html", cart_items=dd.cart_products)
+def cart():
+    return render_template("cart.html", products=dd.cart_products, total_price=254.33)
 
 @app.route("/register")
-def register_page():
+def register():
     return render_template("register.html")
 
-@app.route("/sign-in")
-def sign_in_page():
-    return render_template("sign_in.html")
+@app.route("/login")
+def login():
+    return render_template("login.html")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Мій Flask проєкт{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/header.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
+    {% block head %}{% endblock %}
+</head>
+<body>
+<header class="header bg-black text-white p-4">
+    <div class="container flex flex-row justify-between items-center">
+        <a href="/" class="logo">
+            <img src="{{ url_for('static', filename='images/icon-logo.png') }}" alt="Логотип" width="50" height="50">
+        </a>
+        <nav>
+            <a href="/shop">Shop</a>
+            <a href="/about">About us</a>
+            <a href="/cart">Cart</a>
+            <a href="/login" class="btn">Sign in</a>
+            <a href="/register" class="btn">Register</a>
+        </nav>
+    </div>
+</header>
+
+<main>
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div id="flash-messages" class="container mx-auto px-4 mt-4">
+        {% for category, message in messages %}
+        <div class="bg-{{ 'red' if category == 'danger' else 'green' if category == 'success' else 'blue' }}-100 border border-{{ 'red' if category == 'danger' else 'green' if category == 'success' else 'blue' }}-400 text-{{ 'red' if category == 'danger' else 'green' if category == 'success' else 'blue' }}-700 px-4 py-3 rounded relative flash-message" role="alert">
+            <span class="block sm:inline">{{ message }}</span>
+            <button type="button" class="absolute top-0 bottom-0 right-0 px-4 py-3" onclick="this.parentElement.style.display='none';">
+                <svg class="fill-current h-6 w-6 text-{{ 'red' if category == 'danger' else 'green' if category == 'success' else 'blue' }}-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 5.652a1 1 0 011.414 1.414L11.414 11l4.348 4.348a1 1 0 11-1.414 1.414L10 12.414l-4.348 4.348a1 1 0 01-1.414-1.414L8.586 11 4.348 6.652a1 1 0 011.414-1.414L10 9.586l4.348-4.348z"/></svg>
+            </button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <!-- Page Content -->
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="footer bg-black text-white flex flex-row mt-8 py-4">
+    <div class="container">
+        <a href="/" class="logo">
+            <img src="{{ url_for('static', filename='images/icon-logo.png') }}" alt="Логотип" width="50" height="50">
+        </a>
+        <p class="text-start p-2">Site is created for educational purposes</p>
+    </div>
+</footer>
+<script src="{{ url_for('static', filename='js/flash_messages.js') }}"></script>
+<script src="{{ url_for('static', filename='js/validate_checkout.js') }}"></script>
+</body>
+</html>
