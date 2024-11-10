@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}Про нас{% endblock %}
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/about-us.css') }}">
+{% endblock %}
+{% block content %}
+<!-- Our Team Section -->
+<div class="about-us py-8">
+    <div class="container">
+        <h2 class="text-3xl font-bold text-center mb-4">Our us</h2>
+        <!-- Team Details -->
+        <div class="about-us top-section p-9 mx-auto">
+            <video width="1000" height="360" autoplay loop muted>
+                <source src="../resources/images/video.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+    <div class="about-us center-section bg-black">
+        <div class="about-us center-section content flex items-center flex-col gap-y-[10px] p-9">
+            <h3 class="text-2xl font-bold text-white uppercase">All Natural</h3>
+            <p class="text-lg text-gray-200">The best natural ingrediens</p>
+            <p class="text-gray-300 text-justify">
+                It has never been up for negotiation. Since day 1, natural ingredients have been the main ingredient in
+                our
+                chocolate bar recipes. And it is precisely the love for the natural ingredients that has inspired us to
+                the
+                phrase "It's all natural." We believe that true quality can only be achieved by using the best natural
+                ingredients, and we strive to make every bite of our chocolates the ultimate pleasure. With our approach
+                to
+                high quality and natural ingredients, we will continue to create taste experiences that bring joy and
+                satisfaction to all the senses. Our name "Simply" reflects our desire to simplify the chocolate
+                experience
+                and highlight the simplicity and natural flavour behind each chocolate we create. We will deliver the
+                best,
+                where naturalness and quality are paramount - simple and delicious!
+            </p>
+        </div>
+
+    </div>
+    <div class="container">
+        <div class="about-us bottom-section p-9 flex flex-row justify-between gap-x-[50px]">
+            <div class="about-us bottom-section item w-1/2 flex flex-col gap-y-[10px]">
+                <img src="../resources/images/people-1.webp" alt="Team Image" class="w-full h-full object-cover">
+                <h4 class="text-xl font-bold text-start">Quality and passion</h4>
+                <p>
+                    We are deeply passionate about our chocolate, some would say nerdy, but it is important for us to
+                    make an effort in every single detail. We are proud of our use of natural ingredients – from cocoa
+                    beans to a final chocolate bar. We let nature guide us until we have a product that is full of
+                    authentic and natural flavours. Free from artificial flavours, sweeteners and colourings. Since we
+                    can't cultivate cocoa beans on the northern hemisphere, the journey from cocoa bean to the finished
+                    Simply bar relies on reliable partners who can provide us with the very best chocolate, the tastiest
+                    Persian licorice, the sweetest fresh dates, and the most flavorful peanuts. We consistently strive
+                    to thoroughly assess each supplier based on quality, CSR, child labor policies, documentation,
+                    innovation, price, delivery, and availability. This approach allows us to ensure that only the
+                    finest natural ingredients find their way into our chocolates.
+                </p>
+            </div>
+            <div class="about-us bottom-section item w-1/2 flex flex-col gap-y-[10px]">
+                <img src="../resources/images/people-2.webp" alt="Team Image" class="w-full h-full object-cover">
+                <h4 class="text-xl font-bold text-start">Produced by passionate chocolatiers</h4>
+                <p>
+                    Some things never change. Here at our factory, we still produce our chocolates with care. We weigh
+                    each ingredient in small bowls - not too much, not too little. Why? Well, we believe that by closely
+                    managing the process, we can better strike the right balance between natural ingredients and premium
+                    chocolate, instead of just pushing a button on a machine. We are detail-oriented, maybe a bit nerdy.
+                    And, in fact, we believe our production process contributes to creating the simple and natural
+                    experience we strive for every day. </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
