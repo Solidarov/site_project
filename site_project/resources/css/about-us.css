@@ -1,0 +1,25 @@
+.about-us.top-section,
+.about-us.center-section.content{
+    max-width: 1000px;
+    width: 100%;
+    margin:0 auto;
+}
+
+.about-us.bottom-section img{
+    max-width: 800px;
+    max-height: 550px;
+    width: 100%;
+    @media (max-width:1440px) and (min-width: 1021px) {
+        max-width: 600px;
+    }
+}
+@media (max-width:1020px) {
+    .about-us.bottom-section{
+        flex-direction: column;
+        justify-content: center;
+    }
+    .about-us.bottom-section.item{
+        width: 100%;
+        margin-bottom:50px;
+    }
+}
