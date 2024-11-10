@@ -2,6 +2,7 @@ import os
 import dummy_data as dd # importing dummy data for home and cart pages
 from flask import Flask, render_template, url_for
 from dotenv import load_dotenv
+from models.models import db
 
 
 # ENVIRONMENT VARIABLES
@@ -11,6 +12,12 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 # INITIALISE
 app = Flask(__name__, static_folder='resources')
 app.config['SECRET_KEY'] = SECRET_KEY
+app.secret_key = os.getenv("SECRET_KEY")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
 
 
 # ROUTING
@@ -22,6 +29,10 @@ def home():
 @app.route("/about")
 def about():
     return render_template("about.html")
+
+@app.route("/feedback")
+def feedback():
+    return render_template("feedback.html")
 
 @app.route("/cart")
 def cart():
