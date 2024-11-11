@@ -188,6 +188,11 @@ def logout():
     flash("You are logged out.", "info")
     return redirect(url_for('home'))
 
+@app.route('/admin')
+def admin():
+    orders = Order.query.all()
+    feedbacks = Feedback.query.all()
+    return render_template('admin.html', orders=orders, feedbacks=feedbacks)
 
 if __name__ == "__main__":
     app.run(debug=True)
