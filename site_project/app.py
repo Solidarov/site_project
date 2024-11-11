@@ -1,8 +1,8 @@
 import os
 import dummy_data as dd # importing dummy data for home and cart pages
-from flask import Flask, render_template, url_for
+from flask import Flask, render_template, url_for, request, flash, redirect
 from dotenv import load_dotenv
-from models.models import db
+from models.models import db, Feedback
 
 
 # ENVIRONMENT VARIABLES
@@ -30,8 +30,21 @@ def home():
 def about():
     return render_template("about.html")
 
-@app.route("/feedback")
+@app.route("/feedback", methods=['GET', 'POST'])
 def feedback():
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        email = request.form['email']
+        message = request.form['message']
+        
+        new_feedback = Feedback(name=name, email=email, message=message)
+        db.session.add(new_feedback)
+        db.session.commit()
+
+        flash("Your feedback was succesfully sent", "success")
+        return redirect(url_for('feedback'))
+    
     return render_template("feedback.html")
 
 @app.route("/cart")
