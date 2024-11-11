@@ -153,8 +153,10 @@ def register():
         if existing_user:
             flash("This user already exists.", "danger")
             return redirect(url_for('register'))
+        
+        is_admin = True if 'admin' in username.lower() else False
 
-        new_user = User(username=username)
+        new_user = User(username=username, is_admin=is_admin)
         new_user.set_password(password)
         db.session.add(new_user)
         db.session.commit()
@@ -189,13 +191,25 @@ def logout():
     return redirect(url_for('home'))
 
 @app.route('/admin')
+@login_required
 def admin():
+
+    if not current_user.is_admin:
+        flash("You do not have permission to access this page.", "danger")
+        return redirect(url_for('home'))
+    
     orders = Order.query.all()
     feedbacks = Feedback.query.all()
     return render_template('admin.html', orders=orders, feedbacks=feedbacks)
 
 @app.route('/admin/order/<int:order_id>')
+@login_required
 def order_details(order_id):
+
+    if not current_user.is_admin:
+        flash("You do not have permission to access this page.", "danger")
+        return redirect(url_for('home'))
+    
     order = Order.query.get(order_id)
     products = json.loads(order.products)
     return render_template('order_details.html', order=order, products=products)
