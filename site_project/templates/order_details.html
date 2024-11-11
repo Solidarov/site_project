@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Order Details{% endblock %}
+{% block content %}
+<div class="container bg-white shadow-md rounded-lg p-6">
+    <h1 class="text-3xl font-bold mb-4">Order Details #{{ order.id }}</h1>
+    <p><strong>Email:</strong> {{ order.email }}</p>
+    <p><strong>Адреса:</strong> {{ order.address }}</p>
+    <p><strong>Загальна сума:</strong> ${{ order.total_price}}</p>
+    <p><strong>Статус:</strong> {{ order.status }}</p>
+    <p><strong>Дата:</strong> {{ order.created_at }}</p>
+
+    <h2 class="text-2xl font-bold mt-6 mb-2">Products in the order</h2>
+    <table class="w-full mb-6">
+        <thead>
+            <tr>
+                <th class="text-left">Title</th>
+                <th class="text-left">Price</th>
+                <th class="text-left">Quantity</th>
+                <th class="text-left">Total price</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.title }}</td>
+                <td>${{ product.price }}</td>
+                <td>{{ product.quantity }}</td>
+                <td>${{ product.total }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h2 class="text-2xl font-bold mb-2">Change order's status</h2>
+    <form action="#" method="#" class="mb-4">
+        <select name="status" class="p-2 border rounded mr-2">
+            <option value="New" {% if order.status == 'New' %}selected{% endif %}>New</option>
+            <option value="In processing" {% if order.status == 'In processing' %}selected{% endif %}>In processing</option>
+            <option value="Sent" {% if order.status == 'Sent' %}selected{% endif %}>Sent</option>
+            <option value="Delivered" {% if order.status == 'Delivered' %}selected{% endif %}>Delivered</option>
+            <option value="Canceled" {% if order.status == 'Canceled' %}selected{% endif %}>Canceled</option>
+        </select>
+        <button type="submit" class="bg-blue-500 text-white p-2 rounded">Change status</button>
+    </form>
+
+    <a href="{{ url_for('admin') }}" class="text-blue-500 hover:underline">Get back to the admin page</a>
+</div>
+{% endblock %}

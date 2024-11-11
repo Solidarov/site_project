@@ -194,5 +194,11 @@ def admin():
     feedbacks = Feedback.query.all()
     return render_template('admin.html', orders=orders, feedbacks=feedbacks)
 
+@app.route('/admin/order/<int:order_id>')
+def order_details(order_id):
+    order = Order.query.get(order_id)
+    products = json.loads(order.products)
+    return render_template('order_details.html', order=order, products=products)
+
 if __name__ == "__main__":
     app.run(debug=True)
