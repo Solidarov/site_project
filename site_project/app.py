@@ -1,17 +1,16 @@
-import os
 from flask import Flask, render_template, url_for, request, flash, redirect
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
+from models.models import db, Feedback, Product, User, Cart, Order
 from dotenv import load_dotenv
-from models.models import db, Feedback, Product, User, Cart
+import json
+import os
 
 
 # ENVIRONMENT VARIABLES
 load_dotenv()
-SECRET_KEY = os.getenv('SECRET_KEY')
 
 # INITIALISE
 app = Flask(__name__, static_folder='resources')
-app.config['SECRET_KEY'] = SECRET_KEY
 app.secret_key = os.getenv("SECRET_KEY")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
@@ -96,6 +95,45 @@ def add_to_cart(product_id):
     db.session.commit()
     flash("Product has been added to your cart.", "success")
     return redirect(url_for('cart'))
+
+@app.route('/checkout', methods=['POST', 'GET'])
+@login_required
+def checkout():
+    if request.method == 'GET':
+        return redirect(url_for('cart'))
+
+    address = request.form['address']
+    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+
+    if not cart_items:
+        flash("Your cart is empty!", "danger")
+        return redirect(url_for('cart'))
+
+    products = []
+    total_price = 0
+    for item in cart_items:
+        product = Product.query.get(item.product_id)
+        products.append({
+            'title': product.title,
+            'quantity': item.quantity,
+            'price': product.price,
+            'total': product.price * item.quantity
+        })
+        total_price += product.price * item.quantity
+
+    order = Order(
+        user_id=current_user.id,
+        products=json.dumps(products),
+        total_price=total_price,
+        address=address
+    )
+    db.session.add(order)
+
+    Cart.query.filter_by(user_id=current_user.id).delete()
+    db.session.commit()
+
+    flash("Your order is accepted!", "success")
+    return redirect(url_for('home'))
 
 
 @app.route("/register", methods=['GET', 'POST'])
