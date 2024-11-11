@@ -9,7 +9,7 @@
 {% block content %}
 <div class="user-container">
     <h1>Sign in</h1>
-    <form method="#" action="#" class="space-y-4">
+    <form method="POST" action="{{ url_for('login') }}" class="space-y-4">
         <div>
             <label for="username">Username</label>
             <input type="text" name="username" id="username" placeholder="Please input your username" class="border p-2 w-full" required>

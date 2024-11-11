@@ -1,7 +1,7 @@
 import os
 import dummy_data as dd # importing dummy data for home and cart pages
 from flask import Flask, render_template, url_for, request, flash, redirect
-from flask_login import LoginManager
+from flask_login import LoginManager, login_user, login_required, logout_user
 from dotenv import load_dotenv
 from models.models import db, Feedback, Product, User
 
@@ -88,9 +88,29 @@ def register():
 
     return render_template('register.html')
 
-@app.route("/login")
+@app.route("/login", methods=['GET', 'POST'])
 def login():
-    return render_template("login.html")
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        user = User.query.filter_by(username=username).first()
+        if user and user.check_password(password):
+            login_user(user)
+            flash("You have successfully logged in!", "success")
+            return redirect(url_for('home'))
+        else:
+            flash("Incorrect username or password", "danger")
+
+    return render_template('login.html')
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash("You are logged out.", "info")
+    return redirect(url_for('home'))
 
 
 if __name__ == "__main__":

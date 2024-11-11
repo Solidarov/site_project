@@ -19,10 +19,14 @@
         <nav>
             <a href="/shop">Shop</a>
             <a href="/about">About us</a>
-            <a href="/cart">Cart</a>
             <a href="/feedback">Feedback</a>
-            <a href="/login" class="btn">Sign in</a>
-            <a href="/register" class="btn">Register</a>
+            {% if current_user.is_authenticated %}
+                <a href="/cart">Cart</a>
+                <a href="/logout" class="btn">Logout</a>
+            {% else %}
+                <a href="/login" class="btn">Sign in</a>
+                <a href="/register" class="btn">Register</a>
+            {% endif %}
         </nav>
     </div>
 </header>
