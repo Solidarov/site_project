@@ -1,8 +1,9 @@
 import os
 import dummy_data as dd # importing dummy data for home and cart pages
 from flask import Flask, render_template, url_for, request, flash, redirect
+from flask_login import LoginManager
 from dotenv import load_dotenv
-from models.models import db, Feedback, Product
+from models.models import db, Feedback, Product, User
 
 
 # ENVIRONMENT VARIABLES
@@ -18,6 +19,15 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
 
 # ROUTING
@@ -52,9 +62,31 @@ def feedback():
 def cart():
     return render_template("cart.html", products=dd.cart_products, total_price=254.33)
 
-@app.route("/register")
+@app.route("/register", methods=['GET', 'POST'])
 def register():
-    return render_template("register.html")
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        confirm_password = request.form['confirm_password']
+
+        if password != confirm_password:
+            flash("Passwords do not match", "danger")
+            return redirect(url_for('register'))
+
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash("This user already exists.", "danger")
+            return redirect(url_for('register'))
+
+        new_user = User(username=username)
+        new_user.set_password(password)
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Registration is successful! You can now log in.", "success")
+        return redirect(url_for('login'))
+
+    return render_template('register.html')
 
 @app.route("/login")
 def login():
