@@ -1,9 +1,8 @@
 import os
-import dummy_data as dd # importing dummy data for home and cart pages
 from flask import Flask, render_template, url_for, request, flash, redirect
-from flask_login import LoginManager, login_user, login_required, logout_user
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from dotenv import load_dotenv
-from models.models import db, Feedback, Product, User
+from models.models import db, Feedback, Product, User, Cart
 
 
 # ENVIRONMENT VARIABLES
@@ -59,8 +58,45 @@ def feedback():
     return render_template("feedback.html")
 
 @app.route("/cart")
+@login_required
 def cart():
-    return render_template("cart.html", products=dd.cart_products, total_price=254.33)
+    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+    products = []
+    total_price = 0
+
+    for item in cart_items:
+        product = Product.query.get(item.product_id)
+        products.append({
+            'title': product.title,
+            'description': product.description,
+            'price': product.price,
+            'quantity': item.quantity,
+            'total': product.price * item.quantity,
+            'id': item.id
+        })
+        total_price += product.price * item.quantity
+
+    return render_template('cart.html', products=products, total_price=total_price)
+
+@app.route('/add-to-cart/<int:product_id>', methods=['POST'])
+@login_required
+def add_to_cart(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        flash("Product not found.", "danger")
+        return redirect(url_for('shop'))
+
+    existing_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+    if existing_item:
+        existing_item.quantity += 1
+    else:
+        cart_item = Cart(user_id=current_user.id, product_id=product_id, quantity=1)
+        db.session.add(cart_item)
+
+    db.session.commit()
+    flash("Product has been added to your cart.", "success")
+    return redirect(url_for('cart'))
+
 
 @app.route("/register", methods=['GET', 'POST'])
 def register():
