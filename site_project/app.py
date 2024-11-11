@@ -2,7 +2,7 @@ import os
 import dummy_data as dd # importing dummy data for home and cart pages
 from flask import Flask, render_template, url_for, request, flash, redirect
 from dotenv import load_dotenv
-from models.models import db, Feedback
+from models.models import db, Feedback, Product
 
 
 # ENVIRONMENT VARIABLES
@@ -24,7 +24,8 @@ db.init_app(app)
 @app.route("/")
 @app.route("/shop")
 def home():
-    return render_template('home.html', products=dd.products)
+    products = Product.query.all()
+    return render_template('home.html', products=products)
 
 @app.route("/about")
 def about():
