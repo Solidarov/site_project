@@ -102,6 +102,7 @@ def checkout():
     if request.method == 'GET':
         return redirect(url_for('cart'))
 
+    email = request.form['email']
     address = request.form['address']
     cart_items = Cart.query.filter_by(user_id=current_user.id).all()
 
@@ -125,7 +126,8 @@ def checkout():
         user_id=current_user.id,
         products=json.dumps(products),
         total_price=total_price,
-        address=address
+        address=address,
+        email=email
     )
     db.session.add(order)
 

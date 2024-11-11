@@ -44,9 +44,11 @@ class Order(db.Model):
     __tablename__ = 'orders'
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    email = db.Column(db.String(150), nullable=False)
     products = db.Column(db.Text, nullable=False)
     total_price = db.Column(db.Float, nullable=False)
     address = db.Column(db.String(255), nullable=False)
+    status = db.Column(db.String(50), nullable=False, default='New')
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
 class Feedback(db.Model):
