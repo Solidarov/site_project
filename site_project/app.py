@@ -219,6 +219,23 @@ def order_details(order_id):
     products = json.loads(order.products)
     return render_template('order_details.html', order=order, products=products)
 
+@app.route('/admin/order/change-status/<int:order_id>', methods=['POST'])
+@login_required
+def order_change_status(order_id):
+    if not current_user.is_admin:
+        flash("You do not have permission to access this page.", "danger")
+        return redirect(url_for('home'))
+    
+    feedback = Order.query.get(order_id)
+    if not feedback:
+        flash("Order not found.", "danger")
+        return redirect(url_for('admin'))
+    
+    feedback.update_status(request.form['status'])
+    flash("Order status has been updated.", "success")
+    return redirect(url_for('order_details', order_id=order_id))
+    
+
 
 @app.route('/admin/order/delete/<int:order_id>')
 @login_required

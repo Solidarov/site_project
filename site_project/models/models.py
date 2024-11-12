@@ -52,6 +52,12 @@ class Order(db.Model):
     status = db.Column(db.String(50), nullable=False, default='New')
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
 
+    
+    def update_status(self, new_status):
+        order = Order.query.get(self.id)
+        order.status = new_status
+        db.session.commit()
+
 class Feedback(db.Model):
     __tablename__ = 'feedbacks'
     id = db.Column(db.Integer, primary_key=True)
