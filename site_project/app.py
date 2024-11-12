@@ -214,5 +214,24 @@ def order_details(order_id):
     products = json.loads(order.products)
     return render_template('order_details.html', order=order, products=products)
 
+@app.route('/admin/feedback/delete/<int:feedback_id>')
+@login_required
+def feedback_delete(feedback_id):
+
+    if not current_user.is_admin:
+        flash("You do not have permission to access this page.", "danger")
+        return redirect(url_for('home'))
+    
+    feedback = Feedback.query.get(feedback_id)
+    if not feedback:
+        flash("Feedback not found.", "danger")
+        return redirect(url_for('admin'))
+    
+    db.session.delete(feedback)
+    db.session.commit()
+    
+    flash("Feedback has been deleted.", "success")
+    return redirect(url_for('admin'))
+
 if __name__ == "__main__":
     app.run(debug=True)
