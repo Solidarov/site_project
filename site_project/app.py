@@ -219,6 +219,26 @@ def order_details(order_id):
     products = json.loads(order.products)
     return render_template('order_details.html', order=order, products=products)
 
+
+@app.route('/admin/order/delete/<int:order_id>')
+@login_required
+def order_delete(order_id):
+
+    if not current_user.is_admin:
+        flash("You do not have permission to access this page.", "danger")
+        return redirect(url_for('home'))
+    
+    order = Order.query.get(order_id)
+    if not order:
+        flash("Order not found.", "danger")
+        return redirect(url_for('admin'))
+    
+    db.session.delete(order)
+    db.session.commit()
+
+    flash("Order has been deleted.", "success")
+    return redirect(url_for('admin'))
+
 @app.route('/admin/feedback/delete/<int:feedback_id>')
 @login_required
 def feedback_delete(feedback_id):
