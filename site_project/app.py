@@ -211,6 +211,11 @@ def order_details(order_id):
         return redirect(url_for('home'))
     
     order = Order.query.get(order_id)
+
+    if not order:
+        flash("Order not found.", "danger")
+        return redirect(url_for('admin'))
+
     products = json.loads(order.products)
     return render_template('order_details.html', order=order, products=products)
 
@@ -229,7 +234,7 @@ def feedback_delete(feedback_id):
     
     db.session.delete(feedback)
     db.session.commit()
-    
+
     flash("Feedback has been deleted.", "success")
     return redirect(url_for('admin'))
 
