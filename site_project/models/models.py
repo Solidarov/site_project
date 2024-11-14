@@ -77,3 +77,9 @@ class Feedback(db.Model):
     email = db.Column(db.String(150), nullable=False)
     message = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, nullable=False, default=db.func.now())
+
+
+    @staticmethod
+    def feedback_not_found(redir_page):
+        flash("Feedback not found.", "danger")
+        return redirect(url_for(redir_page))

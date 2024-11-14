@@ -77,8 +77,7 @@ def feedback_delete(feedback_id):
     
     feedback = Feedback.query.get(feedback_id)
     if not feedback:
-        flash("Feedback not found.", "danger")
-        return redirect(url_for('admin.admin'))
+        return Feedback.feedback_not_found('admin.admin')
     
     db.session.delete(feedback)
     db.session.commit()
