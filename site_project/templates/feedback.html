@@ -9,7 +9,7 @@
 {% block content %}
 <div class="user-container">
     <h1>Feedback form</h1>
-    <form method="POST" action="{{url_for('feedback')}}" class="space-y-4">
+    <form method="POST" action="{{url_for('shop.feedback')}}" class="space-y-4">
         <div>
             <label for="email">Email</label>
             <input type="email" name="email" id="email" placeholder="Please input your email" class="border p-2 w-full" required>

@@ -29,115 +29,6 @@ def load_user(user_id):
 
 
 # ROUTING
-@app.route("/")
-@app.route("/shop")
-def home():
-    products = Product.query.all()
-    return render_template('home.html', products=products)
-
-@app.route("/about")
-def about():
-    return render_template("about.html")
-
-@app.route("/feedback", methods=['GET', 'POST'])
-def feedback():
-    
-    if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        message = request.form['message']
-        
-        new_feedback = Feedback(name=name, email=email, message=message)
-        db.session.add(new_feedback)
-        db.session.commit()
-
-        flash("Your feedback was succesfully sent", "success")
-        return redirect(url_for('feedback'))
-    
-    return render_template("feedback.html")
-
-@app.route("/cart")
-@login_required
-def cart():
-    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
-    products = []
-    total_price = 0
-
-    for item in cart_items:
-        product = Product.query.get(item.product_id)
-        products.append({
-            'title': product.title,
-            'description': product.description,
-            'price': product.price,
-            'quantity': item.quantity,
-            'total': product.price * item.quantity,
-            'id': item.id
-        })
-        total_price += product.price * item.quantity
-
-    return render_template('cart.html', products=products, total_price=total_price)
-
-@app.route('/add-to-cart/<int:product_id>', methods=['POST'])
-@login_required
-def add_to_cart(product_id):
-    product = Product.query.get(product_id)
-    if not product:
-        flash("Product not found.", "danger")
-        return redirect(url_for('shop'))
-
-    existing_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
-    if existing_item:
-        existing_item.quantity += 1
-    else:
-        cart_item = Cart(user_id=current_user.id, product_id=product_id, quantity=1)
-        db.session.add(cart_item)
-
-    db.session.commit()
-    flash("Product has been added to your cart.", "success")
-    return redirect(url_for('cart'))
-
-@app.route('/checkout', methods=['POST', 'GET'])
-@login_required
-def checkout():
-    if request.method == 'GET':
-        return redirect(url_for('cart'))
-
-    email = request.form['email']
-    address = request.form['address']
-    cart_items = Cart.query.filter_by(user_id=current_user.id).all()
-
-    if not cart_items:
-        flash("Your cart is empty!", "danger")
-        return redirect(url_for('cart'))
-
-    products = []
-    total_price = 0
-    for item in cart_items:
-        product = Product.query.get(item.product_id)
-        products.append({
-            'title': product.title,
-            'quantity': item.quantity,
-            'price': product.price,
-            'total': product.price * item.quantity
-        })
-        total_price += product.price * item.quantity
-
-    order = Order(
-        user_id=current_user.id,
-        products=json.dumps(products),
-        total_price=total_price,
-        address=address,
-        email=email
-    )
-    db.session.add(order)
-
-    Cart.query.filter_by(user_id=current_user.id).delete()
-    db.session.commit()
-
-    flash("Your order is accepted!", "success")
-    return redirect(url_for('home'))
-
-
 @app.route("/register", methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
@@ -176,7 +67,7 @@ def login():
         if user and user.check_password(password):
             login_user(user)
             flash("You have successfully logged in!", "success")
-            return redirect(url_for('home'))
+            return redirect(url_for('shop.home'))
         else:
             flash("Incorrect username or password", "danger")
 
@@ -188,12 +79,14 @@ def login():
 def logout():
     logout_user()
     flash("You are logged out.", "info")
-    return redirect(url_for('home'))
+    return redirect(url_for('shop.home'))
 
 
 from routes.admin import admin_bp
+from routes.shop import shop_bp
 
 app.register_blueprint(admin_bp)
+app.register_blueprint(shop_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)
