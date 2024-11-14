@@ -11,7 +11,9 @@
 ### 2. Створення віртуального середовища Python
     Команди в терміналі:
         python3 -m venv venv
-        venv\Scripts\activate
+
+        venv\Scripts\activate       для Windows
+        source venv/bin/activate    для Linux
 
 ### 3. Встановлення залежностей:
     pip install -r requirements.tx
@@ -24,13 +26,13 @@
 
 ### 5. Ініціалізація бази даних
     Виконайте скрипт для створення бази даних:
-        python create_db.py
+        python site_project/py_scripts/create_db.py
 
 ### 6. Додавання початкових даних
     Виконайте скрипт для додавання початкових даних (наприклад, продуктів):
-        python add_products.py
+        python site_project/py_scripts/add_products.py
 
 ### 7. Запуск проєкту
     Запустіть локальний сервер:
     flask run
-    або python app.py
+    або python site_project/app.py
