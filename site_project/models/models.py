@@ -64,6 +64,12 @@ class Order(db.Model):
         order.status = new_status
         db.session.commit()
 
+
+    @staticmethod
+    def order_not_found(redir_page):
+        flash("Order not found.", "danger")
+        return redirect(url_for(redir_page))
+
 class Feedback(db.Model):
     __tablename__ = 'feedbacks'
     id = db.Column(db.Integer, primary_key=True)

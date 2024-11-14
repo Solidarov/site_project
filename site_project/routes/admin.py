@@ -30,8 +30,7 @@ def order_details(order_id):
     
     order = Order.query.get(order_id)
     if not order:
-        flash("Order not found.", "danger")
-        return redirect(url_for('admin.admin'))
+        return Order.order_not_found('admin.admin')
 
     products = json.loads(order.products)
     return render_template('order_details.html', order=order, products=products)
@@ -45,8 +44,7 @@ def order_change_status(order_id):
     
     order = Order.query.get(order_id)
     if not order:
-        flash("Order not found.", "danger")
-        return redirect(url_for('admin.admin'))
+        return Order.order_not_found('admin.admin')
     
     order.update_status(request.form['status'])
     flash("Order status has been updated.", "success")
@@ -62,8 +60,7 @@ def order_delete(order_id):
     
     order = Order.query.get(order_id)
     if not order:
-        flash("Order not found.", "danger")
-        return redirect(url_for('admin.admin'))
+        return Order.order_not_found('admin.admin')
     
     db.session.delete(order)
     db.session.commit()
