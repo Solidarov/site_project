@@ -6,7 +6,7 @@ from flask import (render_template,
                    Blueprint)
 
 from flask_login import login_required, current_user
-from models.models import db, Order, Feedback
+from models.models import db, Order, Feedback, User
 import json
 
 admin_bp = Blueprint('admin', __name__)
@@ -14,10 +14,8 @@ admin_bp = Blueprint('admin', __name__)
 @admin_bp.route('/admin')
 @login_required
 def admin():
-
     if not current_user.is_admin:
-        flash("You do not have permission to access this page.", "danger")
-        return redirect(url_for('home'))
+        return User.access_denied()
     
     orders = Order.query.all()
     feedbacks = Feedback.query.all()
@@ -27,13 +25,10 @@ def admin():
 @admin_bp.route('/admin/order/<int:order_id>')
 @login_required
 def order_details(order_id):
-
     if not current_user.is_admin:
-        flash("You do not have permission to access this page.", "danger")
-        return redirect(url_for('home'))
+        return User.access_denied()
     
     order = Order.query.get(order_id)
-
     if not order:
         flash("Order not found.", "danger")
         return redirect(url_for('admin.admin'))
@@ -46,15 +41,14 @@ def order_details(order_id):
 @login_required
 def order_change_status(order_id):
     if not current_user.is_admin:
-        flash("You do not have permission to access this page.", "danger")
-        return redirect(url_for('home'))
+        return User.access_denied()
     
-    feedback = Order.query.get(order_id)
-    if not feedback:
+    order = Order.query.get(order_id)
+    if not order:
         flash("Order not found.", "danger")
         return redirect(url_for('admin.admin'))
     
-    feedback.update_status(request.form['status'])
+    order.update_status(request.form['status'])
     flash("Order status has been updated.", "success")
     return redirect(url_for('admin.order_details', order_id=order_id))
 
@@ -64,8 +58,7 @@ def order_change_status(order_id):
 def order_delete(order_id):
 
     if not current_user.is_admin:
-        flash("You do not have permission to access this page.", "danger")
-        return redirect(url_for('home'))
+        return User.access_denied()
     
     order = Order.query.get(order_id)
     if not order:
@@ -82,10 +75,8 @@ def order_delete(order_id):
 @admin_bp.route('/admin/feedback/delete/<int:feedback_id>')
 @login_required
 def feedback_delete(feedback_id):
-
     if not current_user.is_admin:
-        flash("You do not have permission to access this page.", "danger")
-        return redirect(url_for('home'))
+        return User.access_denied()
     
     feedback = Feedback.query.get(feedback_id)
     if not feedback:

@@ -1,5 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
+from flask import flash, redirect, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
@@ -18,6 +19,11 @@ class User(db.Model, UserMixin):
     def check_password(self, password):
         """Перевіряє, чи співпадає пароль з хешем."""
         return check_password_hash(self.password_hash, password)
+    
+    @staticmethod
+    def access_denied():
+        flash("You do not have permission to access this page.", "danger")
+        return redirect(url_for('shop.home'))
 
 
 class Product(db.Model):
