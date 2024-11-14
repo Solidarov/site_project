@@ -41,20 +41,8 @@ def feedback():
 @login_required
 def cart():
     cart_items = Cart.query.filter_by(user_id=current_user.id).all()
-    products = []
-    total_price = 0
-
-    for item in cart_items:
-        product = Product.query.get(item.product_id)
-        products.append({
-            'title': product.title,
-            'description': product.description,
-            'price': product.price,
-            'quantity': item.quantity,
-            'total': round(product.price * item.quantity, 2),
-            'id': item.id
-        })
-        total_price += round(product.price * item.quantity, 2)
+    
+    products, total_price = Cart.get_products_n_price(cart_items)
 
     return render_template('cart.html', products=products, total_price=total_price)
 
@@ -93,17 +81,7 @@ def checkout():
         flash("Your cart is empty!", "danger")
         return redirect(url_for('shop.cart'))
 
-    products = []
-    total_price = 0
-    for item in cart_items:
-        product = Product.query.get(item.product_id)
-        products.append({
-            'title': product.title,
-            'quantity': item.quantity,
-            'price': product.price,
-            'total': round(product.price * item.quantity, 2)
-        })
-        total_price += round(product.price * item.quantity, 2)
+    products, total_price = Cart.get_products_n_price(cart_items)
 
     order = Order(
         user_id=current_user.id,

@@ -47,6 +47,26 @@ class Cart(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False, default=1)
 
+
+    @staticmethod
+    def get_products_n_price(cart_items):
+        products = []
+        total_price = 0
+
+        for item in cart_items:
+            product = Product.query.get(item.product_id)
+            products.append({
+                'title': product.title,
+                'description': product.description,
+                'price': product.price,
+                'quantity': item.quantity,
+                'total': round(product.price * item.quantity, 2),
+                'id': item.id
+            })
+            total_price += round(product.price * item.quantity, 2)
+        
+        return products, total_price
+
 class Order(db.Model):
     __tablename__ = 'orders'
     id = db.Column(db.Integer, primary_key=True)
