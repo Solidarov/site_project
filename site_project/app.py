@@ -1,40 +1,38 @@
-import os
-import dummy_data as dd # importing dummy data for home and cart pages
-from flask import Flask, render_template, url_for
+from flask import Flask
+from flask_login import LoginManager
+from models.models import db, User
 from dotenv import load_dotenv
+import os
 
 
 # ENVIRONMENT VARIABLES
 load_dotenv()
-SECRET_KEY = os.getenv('SECRET_KEY')
 
 # INITIALISE
 app = Flask(__name__, static_folder='resources')
-app.config['SECRET_KEY'] = SECRET_KEY
+app.secret_key = os.getenv("SECRET_KEY")
+
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv("DATABASE_URL")
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db.init_app(app)
 
 
-# ROUTING
-@app.route("/")
-@app.route("/shop")
-def home():
-    return render_template('home.html', products=dd.products)
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'users.login'
 
-@app.route("/about")
-def about():
-    return render_template("about.html")
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
 
-@app.route("/cart")
-def cart():
-    return render_template("cart.html", products=dd.cart_products, total_price=254.33)
+from routes.admin import admin_bp
+from routes.shop import shop_bp
+from routes.users import users_bp
 
-@app.route("/register")
-def register():
-    return render_template("register.html")
-
-@app.route("/login")
-def login():
-    return render_template("login.html")
-
+app.register_blueprint(admin_bp)
+app.register_blueprint(shop_bp)
+app.register_blueprint(users_bp)
 
 if __name__ == "__main__":
     app.run(debug=True)
