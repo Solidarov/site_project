@@ -61,7 +61,7 @@ class Cart(db.Model):
                 'price': product.price,
                 'quantity': item.quantity,
                 'total': round(product.price * item.quantity, 2),
-                'id': item.id
+                'id': product.id
             })
             total_price += round(product.price * item.quantity, 2)
         
