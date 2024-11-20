@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_user, logout_user
-from models.models import Product, Order, User,Feedback, db
+from models.models import Product, Order, User, Feedback, Cart, db
 from utils.api_login import api_login_required, api_admin_required
 from email_validator import validate_email, EmailNotValidError
 import json
@@ -152,4 +152,65 @@ def delete_feedback_api(feedback_id):
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
+
+# Cart 
+@shop_api.route('/cart', methods=['GET'])
+@api_login_required
+def get_user_cart_api():
+    try:
+        cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+        if not cart_items:
+            return jsonify({'error': 'Cart is empty'}), 404
+        
+        products, total_price = Cart.get_products_n_price(cart_items)
+        return jsonify({'products': products, 'total_price': total_price}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+
+@shop_api.route('/cart', methods=['POST'])
+@api_login_required
+def add_to_cart_api():
+    try:
+        products = request.get_json()
+
+        for product in products:
+            product_id = product['product_id']
+            product_quantity = product['quantity']
+
+            product = Product.query.get(product_id)
+            if not product:
+                return jsonify({'error': 'Product not found'}), 404
+
+            existing_item = Cart.query.filter_by(user_id=current_user.id, product_id=product_id).first()
+
+            if existing_item:
+                existing_item.quantity += product_quantity
+            else:
+                cart_item = Cart(user_id=current_user.id, product_id=product_id, quantity=product_quantity)
+                db.session.add(cart_item)
+
+            db.session.commit()
+
+        return jsonify({'Products added': 'success'}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+
+@shop_api.route('/cart', methods=['DELETE'])
+@api_login_required
+def delete_cart_api():
+    try:
+        cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+        if not cart_items:
+            return jsonify({'error': 'Cart is empty'}), 404
+        
+        for item in cart_items:
+            db.session.delete(item)
+            db.session.commit()
+        return jsonify({'Cart deleted': 'success'}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
