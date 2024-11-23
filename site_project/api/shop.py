@@ -214,3 +214,156 @@ def delete_cart_api():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
 
+
+# Orders
+@shop_api.route('/orders', methods=['GET'])
+@api_admin_required
+def get_all_orders():
+    try:
+        orders = Order.query.all()
+        
+        if not orders:
+            return jsonify({"error": "Orders not found"}), 404
+        
+        return jsonify(
+            [{
+                'id': order.id,
+                'user_id': order.user_id,
+                'email': order.email,
+                
+                'products': 
+                    [{
+                        'title': product['title'],
+                        'quantity': product['quantity'],
+                        'price': product['price'],
+                        'total': product['total']
+                    } for product in json.loads(order.products)],
+                
+                'total_price': order.total_price,
+                'address': order.address,
+                'status': order.status,
+                'created_at': order.created_at        
+                } for order in orders]
+        )
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
+@shop_api.route('/orders/<int:order_id>', methods=['GET'])
+@api_admin_required
+def order_details_api(order_id):
+    try:
+        order = Order.query.get(order_id)
+
+        if not order:
+            return jsonify({"error": "Order not found"}), 404
+        
+        return jsonify({
+
+                    'id': order.id,
+                    'user_id': order.user_id,
+                    'email': order.email,
+                    
+                    'products': 
+                        [{
+                            'title': product['title'],
+                            'quantity': product['quantity'],
+                            'price': product['price'],
+                            'total': product['total']
+                        } for product in json.loads(order.products)],
+                    
+                    'total_price': order.total_price,
+                    'address': order.address,
+                    'status': order.status,
+                    'created_at': order.created_at        
+                })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+
+@shop_api.route('/orders', methods=['POST'])
+@api_login_required
+def add_order_api():
+    try:
+        data = request.get_json()
+
+        #validate email
+        email_check = validate_email(data['email'])
+        f_email = email_check.normalized
+
+        cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+        if not cart_items:
+            return jsonify({'error': 'Cart is empty'}), 404
+        
+        products, total_price = Cart.get_products_n_price(cart_items)
+
+        order = Order(
+            user_id=current_user.id,
+            products=json.dumps(products),
+            total_price=total_price,
+            address=data['address'],
+            email=f_email
+        )
+        db.session.add(order)
+
+        Cart.query.filter_by(user_id=current_user.id).delete()
+        db.session.commit()
+
+        return jsonify({'Order added': 'success'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+
+@shop_api.route("/orders", methods=['DELETE'])
+@api_admin_required
+def delete_all_orders_api():
+    try:
+        orders = Order.query.all()
+        if not orders:
+            return jsonify({'error': 'Orders not found'}), 404
+        
+        for order in orders:
+            db.session.delete(order)
+            db.session.commit()
+
+        return jsonify({'Orders deleted': 'success'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+
+@shop_api.route("/orders/<int:order_id>", methods=['DELETE'])
+@api_admin_required
+def delete_order_by_id_api(order_id):
+    try:
+        order = Order.query.get(order_id)
+        if not order:
+            return jsonify({'error': 'Order not found'}), 404
+        
+        db.session.delete(order)
+        db.session.commit()
+            
+        return jsonify({'Order deleted': 'success'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    
+
+@shop_api.route("/orders/<int:order_id>", methods=['PUT'])
+@api_admin_required
+def update_status_order(order_id):
+    try:
+        data = request.get_json()
+        new_status = data['status'].capitalize()
+        possible_status = ['New', 'In processing', 'Send', 'Delivered', 'Canceled']
+        
+        if new_status not in possible_status:
+            return jsonify({'error': 'Invalid status'}), 400
+        
+        order = Order.query.get(order_id)
+        if not order:
+            return jsonify({'error': 'Order not found'}), 404
+        
+        order.update_status(new_status)
+        return jsonify({'Order status updated': 'success'}), 200
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
