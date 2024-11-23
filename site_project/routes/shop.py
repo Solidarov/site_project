@@ -86,7 +86,7 @@ def checkout():
     order = Order(
         user_id=current_user.id,
         products=json.dumps(products),
-        total_price=round(total_price, 2),
+        total_price=total_price,
         address=address,
         email=email
     )
