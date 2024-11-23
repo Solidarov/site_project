@@ -12,6 +12,10 @@ shop_api = Blueprint('shop_api', __name__)
 def get_products_api():
     try:
         products = Product.query.all()
+
+        if not products:
+            return jsonify({'error': 'Products not found'}), 404
+        
         return jsonify(
             [{
                 'id': product.id,
@@ -22,15 +26,19 @@ def get_products_api():
             } 
             for product in products]
         ), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
+
 
 @shop_api.route('/products/<int:product_id>', methods=['GET'])
 def product_details_api(product_id):
     try:
         product = Product.query.get(product_id)
+
         if not product:
             return jsonify({'error': 'Product not found'}), 404
+        
         return jsonify({
             "id": product.id,
             "title": product.title,
@@ -38,25 +46,30 @@ def product_details_api(product_id):
             "image": product.image,
             "price": product.price,
         }), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 @shop_api.route('/products', methods=['POST'])
 @api_admin_required
 def add_product_api():
     try:
         data = request.get_json()
+
         product = Product(
             title=data['title'],
             description=data['description'],
             image=data['image'],
             price=round(data['price'], 2)
         )
+
         db.session.add(product)
         db.session.commit()
-        return jsonify({'Product added': 'success'}), 200
+
+        return jsonify({'Product added': 'success'}), 201
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @shop_api.route('/products/<int:product_id>', methods=['DELETE'])
@@ -64,13 +77,17 @@ def add_product_api():
 def delete_product_api(product_id):
     try:
         product = Product.query.get(product_id)
+
         if not product:
             return jsonify({'error': 'Product not found'}), 404
+        
         db.session.delete(product)
         db.session.commit()
+
         return jsonify({'Product deleted': 'success'}), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 # Feedback
@@ -78,9 +95,12 @@ def delete_product_api(product_id):
 @api_admin_required
 def get_feedbacks_api():
     try:
+
         fedbacks = Feedback.query.all()
+
         if not fedbacks:
             return jsonify({'error': 'No feedbacks found'}), 404
+        
         return jsonify(
                 [{
                     "id": feedback.id,
@@ -89,8 +109,9 @@ def get_feedbacks_api():
                     "message": feedback.message,
                     "created_at": feedback.created_at
                 } for feedback in fedbacks]), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @shop_api.route('/feedbacks/<int:feedback_id>', methods=['GET'])
@@ -109,8 +130,9 @@ def feedback_details_api(feedback_id):
             "message": feedback.message,
             "created_at": feedback.created_at
         }), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
         
 
 @shop_api.route('/feedbacks', methods=['POST'])
@@ -131,10 +153,11 @@ def add_feedback_api():
         db.session.add(feedback)
         db.session.commit()
 
-        return jsonify({'Feedback added': 'success'}), 200
+        return jsonify({'Feedback added': 'success'}), 201
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
+    
     except EmailNotValidError as e:
         return jsonify({'error': 'Email is not valid', 'message': str(e)}), 400
     
@@ -143,14 +166,19 @@ def add_feedback_api():
 @api_admin_required
 def delete_feedback_api(feedback_id):
     try:
+
         feedback = Feedback.query.get(feedback_id)
+
         if not feedback:
             return jsonify({'error': 'Feedback not found'}), 404
+        
         db.session.delete(feedback)
         db.session.commit()
+
         return jsonify({'Feedback deleted': 'success'}), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 # Cart 
@@ -158,14 +186,18 @@ def delete_feedback_api(feedback_id):
 @api_login_required
 def get_user_cart_api():
     try:
+
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+
         if not cart_items:
             return jsonify({'error': 'Cart is empty'}), 404
         
         products, total_price = Cart.get_products_n_price(cart_items)
+
         return jsonify({'products': products, 'total_price': total_price}), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @shop_api.route('/cart', methods=['POST'])
@@ -175,10 +207,12 @@ def add_to_cart_api():
         products = request.get_json()
 
         for product in products:
+
             product_id = product['product_id']
             product_quantity = product['quantity']
 
             product = Product.query.get(product_id)
+
             if not product:
                 return jsonify({'error': 'Product not found'}), 404
 
@@ -186,16 +220,17 @@ def add_to_cart_api():
 
             if existing_item:
                 existing_item.quantity += product_quantity
+
             else:
                 cart_item = Cart(user_id=current_user.id, product_id=product_id, quantity=product_quantity)
                 db.session.add(cart_item)
 
             db.session.commit()
 
-        return jsonify({'Products added': 'success'}), 200
+        return jsonify({'Products added': 'success'}), 201
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @shop_api.route('/cart', methods=['DELETE'])
@@ -203,16 +238,19 @@ def add_to_cart_api():
 def delete_cart_api():
     try:
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+
         if not cart_items:
             return jsonify({'error': 'Cart is empty'}), 404
         
         for item in cart_items:
+
             db.session.delete(item)
             db.session.commit()
+
         return jsonify({'Cart deleted': 'success'}), 200
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 
 # Orders
@@ -244,9 +282,10 @@ def get_all_orders():
                 'status': order.status,
                 'created_at': order.created_at        
                 } for order in orders]
-        )
+        ), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 
 @shop_api.route('/orders/<int:order_id>', methods=['GET'])
@@ -259,7 +298,6 @@ def order_details_api(order_id):
             return jsonify({"error": "Order not found"}), 404
         
         return jsonify({
-
                     'id': order.id,
                     'user_id': order.user_id,
                     'email': order.email,
@@ -276,9 +314,10 @@ def order_details_api(order_id):
                     'address': order.address,
                     'status': order.status,
                     'created_at': order.created_at        
-                })
+                }), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @shop_api.route('/orders', methods=['POST'])
@@ -292,6 +331,7 @@ def add_order_api():
         f_email = email_check.normalized
 
         cart_items = Cart.query.filter_by(user_id=current_user.id).all()
+
         if not cart_items:
             return jsonify({'error': 'Cart is empty'}), 404
         
@@ -309,7 +349,8 @@ def add_order_api():
         Cart.query.filter_by(user_id=current_user.id).delete()
         db.session.commit()
 
-        return jsonify({'Order added': 'success'}), 200
+        return jsonify({'Order added': 'success'}), 201
+    
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     
@@ -319,6 +360,7 @@ def add_order_api():
 def delete_all_orders_api():
     try:
         orders = Order.query.all()
+
         if not orders:
             return jsonify({'error': 'Orders not found'}), 404
         
@@ -327,8 +369,9 @@ def delete_all_orders_api():
             db.session.commit()
 
         return jsonify({'Orders deleted': 'success'}), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @shop_api.route("/orders/<int:order_id>", methods=['DELETE'])
@@ -336,6 +379,7 @@ def delete_all_orders_api():
 def delete_order_by_id_api(order_id):
     try:
         order = Order.query.get(order_id)
+
         if not order:
             return jsonify({'error': 'Order not found'}), 404
         
@@ -343,8 +387,9 @@ def delete_order_by_id_api(order_id):
         db.session.commit()
             
         return jsonify({'Order deleted': 'success'}), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @shop_api.route("/orders/<int:order_id>", methods=['PUT'])
@@ -363,7 +408,7 @@ def update_status_order(order_id):
             return jsonify({'error': 'Order not found'}), 404
         
         order.update_status(new_status)
-        return jsonify({'Order status updated': 'success'}), 200
+        return jsonify({'Order status updated': 'success'}), 204
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
