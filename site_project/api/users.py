@@ -1,8 +1,7 @@
 from flask import Blueprint, jsonify, request
-from flask_login import login_required, current_user, login_user, logout_user
-from models.models import Product, Order, User, db
+from flask_login import login_user, logout_user
+from models.models import User, db
 from utils.api_login import api_login_required, api_admin_required
-import json
 
 users_api = Blueprint('users_api', __name__)
 
@@ -11,13 +10,15 @@ def login_api():
     try:
         data = request.get_json()
         user = User.query.filter_by(username=data['username']).first()
-        if user and user.check_password(data['password']):
-            login_user(user)
-            return jsonify({'You successfully loged in': 'success'}), 200
-        else:
+
+        if not user or not user.check_password(data['password']):
             return jsonify({'Incorrect username or password': 'error'}), 401
+        
+        login_user(user)
+        return jsonify({'You successfully loged in': 'success'}), 200
+        
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @users_api.route('/logout', methods=['GET'])
@@ -27,7 +28,7 @@ def logout_api():
         logout_user()
         return jsonify({'You are logged out': 'success'}), 200
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 
 @users_api.route('/register', methods=['POST'])
@@ -54,9 +55,9 @@ def register_api():
         db.session.add(new_user)
         db.session.commit()
 
-        return jsonify({'User registered successfully': 'success', 'message': 'Now you can login'}), 200
+        return jsonify({'User registered successfully': 'success', 'message': 'Now you can login'}), 201
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
 
 
 @users_api.route('/users', methods=['GET'])
@@ -73,9 +74,10 @@ def show_users_api():
                 'username': user.username,
                 "is_admin": user.is_admin
             } for user in users]
-        )
+        ), 200
+    
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @users_api.route('/users/<int:user_id>', methods=['GET'])
@@ -95,7 +97,7 @@ def user_details_api(user_id):
         }), 200
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
     
 
 @users_api.route('/users/<int:user_id>', methods=['DELETE'])
@@ -114,4 +116,4 @@ def user_delete_api(user_id):
         return jsonify({"User successfully deleted": "success"}), 200
     
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return jsonify({'error': str(e)}), 500
