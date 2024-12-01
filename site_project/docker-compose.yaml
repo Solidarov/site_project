@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .  # Використовує існуючий Dockerfile
+    ports:
+      - "5000:5000"  # Мапінг портів
+    volumes:
+      - ./data:/app/data  # Для бази даних
+    env_file:
+      - .env # Зчитування змінних середовища з файлу
+    restart: unless-stopped  # Автоматичний перезапуск при збої
