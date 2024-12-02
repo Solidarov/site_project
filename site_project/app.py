@@ -43,4 +43,4 @@ app.register_blueprint(shop_api, url_prefix='/api/shop')
 app.register_blueprint(users_api, url_prefix='/api/users')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host='0.0.0.0', debug=os.getenv("FLASK_DEBUG"))
